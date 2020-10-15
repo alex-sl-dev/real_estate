@@ -2,7 +2,6 @@ package interfaces
 
 import (
 	"fmt"
-	"time"
 	"untitled/internal/domain"
 	"untitled/internal/infrastructure"
 )
@@ -20,42 +19,7 @@ func (repo *AccountSQLRepository) SelectAccountByID(id int) (domain.AccountAggre
 		  FROM users as u
 		 WHERE u.id = $1
 	;`
-	account := domain.AccountAggregate{
-		Identity: domain.IdentityEntity{
-			ID:        0,
-			Password:  "",
-			Email:     domain.EmailValueObject{
-				Value:           "",
-				VerifiedAt:      time.Time{},
-				ActivationToken: "",
-			},
-			Role:      "",
-			Status:    "",
-			CreatedAt: time.Time{},
-			UpdatedAt: time.Time{},
-			DeletedAt: time.Time{},
-		},
-		Profile: domain.ProfileValueObject{
-			FullName: domain.FullNameValueObject{
-				FirstName: "",
-				LastName:  "",
-			},
-			Phone: domain.PhoneValueObject{
-				FullPhone: "",
-				Country: "",
-				Code:    "",
-				Number:  "",
-			},
-			AboutMe:  "",
-			Avatar:   "",
-			Company:  "",
-		},
-		Address:  domain.AddressValueObject{
-			Country: "",
-			City:    "",
-			Post:    "",
-		},
-	}
+	account := domain.AccountAggregate{}
 	err = repo.DB.QueryRow(sqlStatement, id).Scan(
 		&account.Identity.ID,
 		&account.Identity.Email.Value,

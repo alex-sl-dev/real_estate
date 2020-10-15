@@ -63,10 +63,18 @@ func (sm *serviceManager) PgConnectService() *infrastructure.PostgresConnector {
 func (sm *serviceManager) AccountWebServiceFactory() interfaces.AccountWebService {
 
 	pgConnectorInstance := sm.PgConnectService()
+	mailServiceInstance := usecase.NewMailService(true)
 
 	accountRepositoryInstance := &interfaces.AccountSQLRepository{DB: pgConnectorInstance}
-	accountServiceInstance := &usecase.AccountService{AccountRepository: accountRepositoryInstance}
+	accountServiceInstance := &usecase.AccountService{
+		AccountRepository: accountRepositoryInstance,
+		MailService: *mailServiceInstance, /** todo, select proper place for service call service */
+	}
 
-	return interfaces.AccountWebService{AccountService: accountServiceInstance}
+	return interfaces.AccountWebService{
+		AccountService: accountServiceInstance,
+		MailService: mailServiceInstance, /** todo, select proper place for service call service */
+	}
 }
+
 

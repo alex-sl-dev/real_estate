@@ -71,6 +71,10 @@ type FullNameValueObject struct {
 	LastName  string
 }
 
+func (o *FullNameValueObject) FullName() string {
+	return o.FirstName + " " + o.LastName
+}
+
 type AddressValueObject struct {
 	Country string
 	City    string

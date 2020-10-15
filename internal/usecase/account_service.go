@@ -5,6 +5,7 @@ import "untitled/internal/domain"
 type AccountService struct {
 	AccountRepository domain.AccountRepository
 	JWTService
+	MailService /*maybe*/
 }
 
 func (service *AccountService) Register(aggregate domain.AccountAggregate) error {
@@ -13,6 +14,8 @@ func (service *AccountService) Register(aggregate domain.AccountAggregate) error
 	if err != nil {
 		return err
 	}
+	// TODO temporary, broken single responsibility?
+	// service.MailService.SendRegistrationMail(aggregate)
 	return nil
 }
 
@@ -38,3 +41,4 @@ func (service *AccountService) Authenticate(aggregate domain.AccountAggregate) (
 
 	return token, nil
 }
+

@@ -8,6 +8,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path"
+	"runtime"
 	"runtime/pprof"
 	"untitled/internal/app"
 )
@@ -19,8 +21,28 @@ func init() {
 	if err := godotenv.Load(); err != nil {
 		log.Print("No .env file found")
 	}
+	SetupAppWorkingDirectory()
 }
 
+func SetupAppWorkingDirectory()  {
+	/*
+		pwd, err := os.Getwd()
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+	*/
+	_, filename, _, ok := runtime.Caller(1)
+	if ok {
+		err := os.Setenv("APP_ROOT_PATH", path.Join(path.Dir(filename), ".."))
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		panic("wrong runtime variable")
+	}
+
+}
 var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to `file`")
 
 func main() {

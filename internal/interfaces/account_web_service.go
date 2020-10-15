@@ -9,6 +9,7 @@ import (
 
 type AccountWebService struct {
 	AccountService domain.AccountService
+	MailService domain.MailService
 }
 
 func (aws *AccountWebService) SignUpAction(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
@@ -30,7 +31,18 @@ func (aws *AccountWebService) SignUpAction(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	err = aws.AccountService.Register(registrationRequest.ToAccountAggregate())
+	accountAggregate := registrationRequest.ToAccountAggregate()
+
+	//
+	err = aws.AccountService.Register(accountAggregate)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// todo select proper place for sending mail
+	// TODO temporary, broken single responsibility?
+	err = aws.MailService.SendRegistrationMail(accountAggregate)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
