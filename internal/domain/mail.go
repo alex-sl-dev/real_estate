@@ -5,6 +5,11 @@ import (
 	"net/mail"
 )
 
+const (
+	MailRegistrationTpl        = "registration"
+	MailAddressVerificationTpl = "mailAddressValidation"
+)
+
 type MailMessage struct {
 	To      []mail.Address
 	Content []byte
@@ -19,4 +24,5 @@ type MailTemplate struct {
 
 type MailService interface {
 	SendRegistrationMail(aggregate AccountAggregate) error
+	SendConfirmAddressMail(emailAddress, code string) error
 }

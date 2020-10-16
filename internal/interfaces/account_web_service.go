@@ -5,11 +5,13 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"untitled/internal/domain"
+	"untitled/internal/usecase"
 )
 
 type AccountWebService struct {
 	AccountService domain.AccountService
-	MailService domain.MailService
+	MailService    domain.MailService
+	ImageService   usecase.ImageService
 }
 
 func (aws *AccountWebService) SignUpAction(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
@@ -118,11 +120,59 @@ func (aws *AccountWebService) SignOutAction(writer http.ResponseWriter, request 
 
 func (aws *AccountWebService) LoadProfileAction(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 
-
 }
 
 func (aws *AccountWebService) UpdateProfileAction(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 
-
 }
 
+func (aws *AccountWebService) ConfirmEmailAction(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	var (
+		confirmEmailAddressRequest struct {
+			Email string `validate:"required,email" json:"email"`
+		}
+		err error
+	)
+
+	err = json.NewDecoder(r.Body).Decode(&confirmEmailAddressRequest)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = Validate.Struct(&confirmEmailAddressRequest)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
+		return
+	}
+
+	verificationCode := aws.AccountService.GetVerificationCode(confirmEmailAddressRequest.Email)
+
+	err = aws.MailService.SendConfirmAddressMail(confirmEmailAddressRequest.Email, verificationCode)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	type verificationCodeForEmailAddressResponse struct {
+		Code string `json:"code"`
+	}
+
+	response := verificationCodeForEmailAddressResponse{
+		Code: verificationCode,
+	}
+
+	jsonResponse, err := json.Marshal(response)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/jsonResponse")
+	_, err = w.Write(jsonResponse)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}

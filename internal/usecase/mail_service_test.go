@@ -11,7 +11,6 @@ func init() {
 	if err := godotenv.Load("../../.env"); err != nil {
 		log.Print("No .env file found")
 	}
-
 }
 
 func TestMailService_SendRegistrationMail(t *testing.T) {

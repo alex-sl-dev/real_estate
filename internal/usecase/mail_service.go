@@ -45,9 +45,49 @@ type MailService struct {
 	MailTemplate MailTemplateProcessor
 }
 
+func (service *MailService) SendConfirmAddressMail(emailAddress, verificationCode string) error {
+
+	type templateVariables struct {
+		Code    string
+		Subject string
+	}
+
+	subject := "Код потверждения"
+
+	mt := domain.MailTemplate{
+		Role: domain.MailAddressVerificationTpl,
+		Variables: templateVariables{
+			Code:    verificationCode,
+			Subject: subject,
+		},
+		Content: &bytes.Buffer{},
+	}
+	err := service.MailTemplate.ProcessMailTemplate(mt)
+	if err != nil {
+		return err
+	}
+
+	mm := domain.MailMessage{
+		Subject: subject,
+	}
+
+	mm.To = append(mm.To, mail.Address{
+		Address: emailAddress,
+	})
+
+	mm.Content = mt.Content.Bytes()
+
+	err = service.SMTP.Send(mm)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (service *MailService) SendRegistrationMail(aggregate domain.AccountAggregate) error {
 
-	type variables struct {
+	type templateVariables struct {
 		FullName string
 		Subject  string
 	}
@@ -55,8 +95,8 @@ func (service *MailService) SendRegistrationMail(aggregate domain.AccountAggrega
 	subject := "Welcome to paradise"
 
 	mt := domain.MailTemplate{
-		Role: "registration",
-		Variables: variables{
+		Role: domain.MailRegistrationTpl,
+		Variables: templateVariables{
 			FullName: aggregate.Profile.FullName.FullName(),
 			Subject:  subject,
 		},

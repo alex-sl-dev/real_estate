@@ -45,7 +45,6 @@ func gwtAuth(next httprouter.Handle) httprouter.Handle {
 func NewRouter() *httprouter.Router {
 	router := httprouter.New()
 
-
 	pwd, err := os.Getwd()
 	if err != nil {
 		fmt.Println(err)
@@ -54,11 +53,13 @@ func NewRouter() *httprouter.Router {
 	fmt.Println(pwd)
 	router.ServeFiles("/static/*filepath", http.Dir(pwd+"/public/"))
 
-
 	accountWebService := sm.AccountWebServiceFactory()
+
 	router.POST("/account/sign-up", accountWebService.SignUpAction)
 	router.POST("/account/sign-in", accountWebService.SignInAction)
 	router.POST("/account/sign-out", accountWebService.SignOutAction)
+
+	router.POST("/account/confirm-email", accountWebService.ConfirmEmailAction)
 
 	router.GET("/account/profile", gwtAuth(accountWebService.LoadProfileAction))
 	router.POST("/account/profile", gwtAuth(accountWebService.UpdateProfileAction))

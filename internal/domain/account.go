@@ -22,7 +22,7 @@ type IdentityEntity struct {
 	DeletedAt time.Time
 }
 
-func (ie IdentityEntity) EncryptPassword()  {
+func (ie IdentityEntity) EncryptPassword() {
 	saltedBytes := []byte(ie.Password)
 	hashedBytes, err := bcrypt.GenerateFromPassword(saltedBytes, bcrypt.DefaultCost)
 	if err != nil {
@@ -47,16 +47,16 @@ type ProfileValueObject struct {
 
 type PhoneValueObject struct {
 	FullPhone string
-	Country string
-	Code    string
-	Number  string
+	Country   string
+	Code      string
+	Number    string
 }
 
 func (pvo *PhoneValueObject) getFullPhone() {
 	pvo.FullPhone = pvo.Country + pvo.Code + pvo.Number
 }
 
-func (pvo *PhoneValueObject) FromString(fullPhone string)  {
+func (pvo *PhoneValueObject) FromString(fullPhone string) {
 	if len(fullPhone) > 10 {
 		pvo.FullPhone = fullPhone
 		tmp := []rune(fullPhone)
@@ -92,5 +92,6 @@ type AccountRepository interface {
 type AccountService interface {
 	Register(aggregate AccountAggregate) error
 	Authenticate(aggregate AccountAggregate) (string, error)
+	GetVerificationCode(email string) string
 	//Disable(aggregate AccountAggregate) error
 }

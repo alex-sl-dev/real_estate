@@ -1,6 +1,9 @@
 package usecase
 
-import "untitled/internal/domain"
+import (
+	"strconv"
+	"untitled/internal/domain"
+)
 
 type AccountService struct {
 	AccountRepository domain.AccountRepository
@@ -26,13 +29,13 @@ func (service *AccountService) Authenticate(aggregate domain.AccountAggregate) (
 		return "", err
 	}
 	/*
-	 we try to select by hashed password
-		h := crypto.Hash{}
+		 we try to select by hashed password
+			h := crypto.Hash{}
 
-		err = h.Compare(u.Password, payload.Password)
-		if err != nil {
-			return nil, err
-		}*/
+			err = h.Compare(u.Password, payload.Password)
+			if err != nil {
+				return nil, err
+			}*/
 	//
 	token, err := service.JWTService.ClaimJWToken(aggregate)
 	if err != nil {
@@ -42,3 +45,11 @@ func (service *AccountService) Authenticate(aggregate domain.AccountAggregate) (
 	return token, nil
 }
 
+func (service *AccountService) GetVerificationCode(emailAddress string) string {
+	bytes := []byte(emailAddress)
+	var verificationCode int
+	for _, someByte := range bytes {
+		verificationCode = verificationCode + int(someByte)
+	}
+	return strconv.Itoa(verificationCode)
+}
