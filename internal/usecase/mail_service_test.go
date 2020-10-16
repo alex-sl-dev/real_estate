@@ -7,7 +7,7 @@ import (
 	"untitled/internal/domain"
 )
 
-func init()  {
+func init() {
 	if err := godotenv.Load("../../.env"); err != nil {
 		log.Print("No .env file found")
 	}
@@ -29,6 +29,7 @@ func TestMailService_SendRegistrationMail(t *testing.T) {
 
 	email := domain.EmailValueObject{
 		Value: "john.doe@localhost",
+		//Value: "alex.slobodianiuk.84@gmail.com",
 	}
 
 	identity := domain.IdentityEntity{
@@ -36,7 +37,7 @@ func TestMailService_SendRegistrationMail(t *testing.T) {
 	}
 
 	accountAggregate := domain.AccountAggregate{
-		Profile: profile,
+		Profile:  profile,
 		Identity: identity,
 	}
 

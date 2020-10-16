@@ -1,19 +1,21 @@
 package domain
 
-import "bytes"
+import (
+	"bytes"
+	"net/mail"
+)
 
 type MailMessage struct {
-	To []string
+	To      []mail.Address
 	Content []byte
 	Subject string
 }
 
 type MailTemplate struct {
-	Role string
+	Role      string
 	Variables interface{}
-	Content *bytes.Buffer
+	Content   *bytes.Buffer
 }
-
 
 type MailService interface {
 	SendRegistrationMail(aggregate AccountAggregate) error
