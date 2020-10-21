@@ -146,6 +146,12 @@ func (aws *AccountWebService) ConfirmEmailAction(w http.ResponseWriter, r *http.
 		return
 	}
 
+	isUsedEmail, err := aws.AccountService.IsExistsMailAddress(confirmEmailAddressRequest.Email)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	verificationCode := aws.AccountService.GetVerificationCode(confirmEmailAddressRequest.Email)
 
 	err = aws.MailService.SendConfirmAddressMail(confirmEmailAddressRequest.Email, verificationCode)
@@ -155,11 +161,18 @@ func (aws *AccountWebService) ConfirmEmailAction(w http.ResponseWriter, r *http.
 	}
 
 	type verificationCodeForEmailAddressResponse struct {
-		Code string `json:"code"`
+		Code        string `json:"code"`
+		EmailStatus string `json:"email-status"`
+	}
+
+	emailStatus := "OK"
+	if isUsedEmail {
+		emailStatus = "Email already registered"
 	}
 
 	response := verificationCodeForEmailAddressResponse{
-		Code: verificationCode,
+		Code:        verificationCode,
+		EmailStatus: emailStatus,
 	}
 
 	jsonResponse, err := json.Marshal(response)

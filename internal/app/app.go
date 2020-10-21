@@ -9,9 +9,17 @@ import (
 	"strings"
 )
 
-
-func init()  {
+func init() {
 	NewServiceContainer()
+}
+
+func isProductionEnv() bool {
+	env := os.Getenv("ENV")
+	isProduction := false
+	if env == "prod" || env == "production" {
+		isProduction = true
+	}
+	return isProduction
 }
 
 func extractClaims(r *http.Request) (jwt.MapClaims, error) {

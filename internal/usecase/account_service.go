@@ -45,6 +45,10 @@ func (service *AccountService) Authenticate(aggregate domain.AccountAggregate) (
 	return token, nil
 }
 
+func (service *AccountService) IsExistsMailAddress(email string) (bool, error) {
+	return service.AccountRepository.IsExistEmail(email)
+}
+
 func (service *AccountService) GetVerificationCode(emailAddress string) string {
 	bytes := []byte(emailAddress)
 	var verificationCode int

@@ -85,6 +85,7 @@ type AccountRepository interface {
 	SelectAccountByID(id int) (AccountAggregate, error)
 	SelectAccountByCredentials(aggregate AccountAggregate) (AccountAggregate, error)
 	InsertAccount(aggregate AccountAggregate) error
+	IsExistEmail(email string) (bool, error)
 	//UpdateAccount(aggregate AccountAggregate) error
 }
 
@@ -93,5 +94,6 @@ type AccountService interface {
 	Register(aggregate AccountAggregate) error
 	Authenticate(aggregate AccountAggregate) (string, error)
 	GetVerificationCode(email string) string
+	IsExistsMailAddress(email string) (bool, error)
 	//Disable(aggregate AccountAggregate) error
 }

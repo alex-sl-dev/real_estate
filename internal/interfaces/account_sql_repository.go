@@ -45,6 +45,27 @@ func (repo *AccountSQLRepository) SelectAccountByID(id int) (domain.AccountAggre
 	return account, nil
 }
 
+func (repo *AccountSQLRepository) IsExistEmail(email string) (bool, error) {
+	var err error
+	sqlStatement := `
+		SELECT u.email
+		  FROM users AS u
+		 WHERE u.email = $1
+	;`
+
+	var existsEmail string
+	err = repo.DB.QueryRow(sqlStatement, email).Scan(&existsEmail)
+	if err != nil && err.Error() == "no rows in result set" {
+		return false, nil
+	}
+
+	if len(existsEmail) > 0 {
+		return true, nil
+	}
+
+	return false, nil
+}
+
 // GetAccountByEmail used for authenticate purposes, will load only required fields
 func (repo *AccountSQLRepository) SelectAccountByCredentials(aggregate domain.AccountAggregate) (domain.AccountAggregate, error) {
 	var err error
@@ -58,12 +79,12 @@ func (repo *AccountSQLRepository) SelectAccountByCredentials(aggregate domain.Ac
 		aggregate.Identity.Email.Value,
 		aggregate.Identity.Password).
 		Scan(
-		&a.Identity.ID,
-		&a.Profile.FullName.FirstName,
-		&a.Profile.FullName.LastName,
-		&a.Identity.Email.Value,
-		&a.Identity.Password,
-		&a.Identity.Role)
+			&a.Identity.ID,
+			&a.Profile.FullName.FirstName,
+			&a.Profile.FullName.LastName,
+			&a.Identity.Email.Value,
+			&a.Identity.Password,
+			&a.Identity.Role)
 	if err != nil {
 		return a, err
 	}
@@ -72,7 +93,7 @@ func (repo *AccountSQLRepository) SelectAccountByCredentials(aggregate domain.Ac
 }
 
 // InsertAccount used once for User registration action, so can omny many fields
-func (repo *AccountSQLRepository) InsertAccount(a domain.AccountAggregate) error  {
+func (repo *AccountSQLRepository) InsertAccount(a domain.AccountAggregate) error {
 	// transaction
 	sqlStatement := `
 		INSERT INTO users (first_name, last_name, phone, email, password, role)
@@ -99,7 +120,7 @@ func (repo *AccountSQLRepository) UpdateAccount(user domain.AccountAggregate) er
 	fmt.Print(user)
 	sqlStatement := `
    UPDATE users
-      SET first_name=$2, last_name=$3, email=$4, phone=$5, role=$6, company=$7, address=$8, city=$9, 
+      SET first_name=$2, last_name=$3, email=$4, phone=$5, role=$6, company=$7, address=$8, city=$9,
 			country=$10, post_index=$11, about_me=$12, updated_at=$13
     WHERE id = $1;`
 	err := repo.DB. QueryRow(sqlStatement,

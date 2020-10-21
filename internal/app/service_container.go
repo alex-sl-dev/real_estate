@@ -18,7 +18,7 @@ var (
 	sm            *serviceManager
 	containerOnce sync.Once
 	connectorOnce sync.Once
-	pgConnector *infrastructure.PostgresConnector
+	pgConnector   *infrastructure.PostgresConnector
 )
 
 type ServiceContainer interface {
@@ -63,18 +63,16 @@ func (sm *serviceManager) PgConnectService() *infrastructure.PostgresConnector {
 func (sm *serviceManager) AccountWebServiceFactory() interfaces.AccountWebService {
 
 	pgConnectorInstance := sm.PgConnectService()
-	mailServiceInstance := usecase.NewMailService(true)
+	mailServiceInstance := usecase.NewMailService(isProductionEnv())
 
 	accountRepositoryInstance := &interfaces.AccountSQLRepository{DB: pgConnectorInstance}
 	accountServiceInstance := &usecase.AccountService{
 		AccountRepository: accountRepositoryInstance,
-		MailService: *mailServiceInstance, /** todo, select proper place for service call service */
+		MailService:       *mailServiceInstance, /** todo, select proper place for service call service */
 	}
 
 	return interfaces.AccountWebService{
 		AccountService: accountServiceInstance,
-		MailService: mailServiceInstance, /** todo, select proper place for service call service */
+		MailService:    mailServiceInstance, /** todo, select proper place for service call service */
 	}
 }
-
-
